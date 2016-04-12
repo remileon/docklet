@@ -142,6 +142,21 @@ class Worker(object):
             #network.netsetup("gre", self.master)
             if not netcontrol.gre_exists('docklet-br', self.master):
                 netcontrol.setup_gre('docklet-br', self.master)
+    def checkmaster():
+        while (True):
+            [status, value] = self.etcd.getkey("machines/runnodes/"+self.addr)
+            if (status == False)
+                self.etcd.setkey("machines/runnodes/"+self.addr, "waiting")
+                for f in range (0, 3):
+                    [status, value] = self.etcd.getkey("machines/runnodes/"+self.addr)    
+                if not value.startswith("init"):
+                    # master wakesup every 0.1s  to check register
+                    logger.debug("worker % register to master failed %d \
+                        time, sleep %fs" % (self.addr, f+1, 0.1))
+                    time.sleep(0.1)
+                else:
+                    break
+            time.sleep(2)
 
     # start service of worker
     def start(self):
@@ -149,6 +164,8 @@ class Worker(object):
         # start serving for rpc
         logger.info ("begins to work")
         self.rpcserver.serve_forever()
+        # start checking if loses connection from master
+        threading.Thread(target=checkmaster).start()
         
     
 if __name__ == '__main__':
