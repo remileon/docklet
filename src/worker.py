@@ -145,7 +145,7 @@ class Worker(object):
     def checkmaster():
         while (True):
             [status, value] = self.etcd.getkey("machines/runnodes/"+self.addr)
-            if (status == False)
+            if (status == False):
                 self.etcd.setkey("machines/runnodes/"+self.addr, "waiting")
                 for f in range (0, 3):
                     [status, value] = self.etcd.getkey("machines/runnodes/"+self.addr)    
