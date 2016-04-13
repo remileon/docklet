@@ -16,6 +16,7 @@ import etcdlib, network, container
 from nettools import netcontrol
 import monitor
 from lvmtool import *
+import threading
 
 ##################################################################
 #                       Worker
@@ -161,11 +162,11 @@ class Worker(object):
     # start service of worker
     def start(self):
         self.etcd.setkey("machines/runnodes/"+self.addr, "work")
+        # start checking if loses connection from master
+        threading.Thread(target=Worker.checkmaster, args=(self,)).start()
         # start serving for rpc
         logger.info ("begins to work")
         self.rpcserver.serve_forever()
-        # start checking if loses connection from master
-        threading.Thread(target=Worker.checkmaster, args=(self,)).start()
         
     
 if __name__ == '__main__':
