@@ -147,8 +147,10 @@ class Worker(object):
         while (True):
             [status, value] = self.etcd.getkey("machines/runnodes/"+self.addr)
             if not status:
+                logger.info("master restarted, register again")
                 self.etcd.setkey("machines/runnodes/"+self.addr, "waiting")
             elif value.startswith("init"):
+                logger.info("master responded register, check token")
                 # check token to check global directory
                 [status, token_1] = self.etcd.getkey("token")
                 tokenfile = open(self.fspath+"/global/token", 'r')
@@ -156,7 +158,8 @@ class Worker(object):
                 if token_1 != token_2:
                     logger.error("check token failed, global directory is not a shared filesystem")
                     sys.exit(1)
-            self.etcd.setkey("machines/runnodes/"+self.addr, "work")
+                logger.info("check token complete, start working again")
+                self.etcd.setkey("machines/runnodes/"+self.addr, "work")
             time.sleep(1)
 
     # start service of worker
