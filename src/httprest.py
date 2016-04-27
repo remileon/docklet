@@ -342,11 +342,28 @@ class DockletHttpHandler(http.server.BaseHTTPRequestHandler):
                     res['cpu_use'] = fetcher.get_cpu_use(cmds[2])
                 elif cmds[3] == 'mem_use':
                     res['mem_use'] = fetcher.get_mem_use(cmds[2])
+                elif cmds[3] == 'disk_use':
+                    res['disk_use'] = fetcher.get_disk_use(cmds[2])
                 elif cmds[3] == 'basic_info':
                     res['basic_info'] = fetcher.get_basic_info(cmds[2])
+                elif cmds[3] == 'owner':
+                    names = cmds[2].split('-')
+                    result = G_usermgr.query(username = names[0], cur_user = cur_user)
+                    if result['success'] == 'false':
+                        res['username'] = ""
+                        res['truename'] = ""
+                    else:
+                        res['username'] = result['data']['username']
+                        res['truename'] = result['data']['truename']
+                else:
+                    res = "Unspported Method!"
                 self.response(200, {'success':'true', 'monitor':res})
             elif cmds[1] == 'user':
-                if not user == 'root':
+                if cmds[2] == 'quotainfo':
+                    user_info = G_usermgr.selfQuery(cur_user = cur_user)
+                    quotainfo = user_info['data']['groupinfo']
+                    self.response(200, {'success':'true', 'quotainfo':quotainfo}) 
+                '''if not user == 'root':
                     self.response(400, {'success':'false', 'message':'Root Required'})
                 if cmds[3] == 'clustercnt':
                     flag = True
@@ -391,7 +408,7 @@ class DockletHttpHandler(http.server.BaseHTTPRequestHandler):
                         else:
                      	    self.response(200, {'success':'false','message':result})
                     else:
-                        self.response(400, {'success':'false', 'message':'not supported request'})
+                        self.response(400, {'success':'false', 'message':'not supported request'})'''
 
             elif cmds[1] == 'listphynodes':
                 res['allnodes'] = G_nodemgr.get_allnodes()
